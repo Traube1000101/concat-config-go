@@ -46,7 +46,11 @@ func watchExec(file string, function func()) {
 }
 
 func concatConfig(files []string) {
-	fmt.Println("Concatenating \""+baseFile+"\" to following files: ", strings.Join(files, "\n"))
+	quotedFiles := make([]string, len(files))
+	for i, file := range files {
+		quotedFiles[i] = `"` + file + `"`
+	}
+	fmt.Println("Concatenating \""+baseFile+"\" to the files", strings.Join(quotedFiles, ", ")+"...")
 
 	base, err := os.ReadFile(baseFile)
 	if err != nil {
