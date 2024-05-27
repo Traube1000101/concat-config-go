@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/fsnotify/fsnotify"
 )
@@ -18,6 +19,10 @@ func watchExec(file string, function func()) {
 	}
 	defer watcher.Close()
 
+	delay := 50 * time.Millisecond
+	timer := time.NewTimer(delay)
+	timer.Stop()
+
 	go func() {
 		for {
 			select {
@@ -26,7 +31,10 @@ func watchExec(file string, function func()) {
 					return
 				}
 				if event.Has(fsnotify.Write) {
-					function()
+					if !timer.Stop() {
+						function()
+					}
+					timer.Reset(delay)
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
@@ -50,7 +58,6 @@ func concatConfig(files []string) {
 	for i, file := range files {
 		quotedFiles[i] = `"` + file + `"`
 	}
-	fmt.Println("Concatenating \""+baseFile+"\" to the files", strings.Join(quotedFiles, ", ")+"...")
 
 	base, err := os.ReadFile(baseFile)
 	if err != nil {
@@ -82,6 +89,7 @@ func concatConfig(files []string) {
 			log.Fatal(err)
 		}
 	}
+	fmt.Println("Concatenated \""+baseFile+"\" to the files", strings.Join(quotedFiles, ", "))
 }
 
 func main() {
