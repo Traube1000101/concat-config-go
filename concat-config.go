@@ -19,7 +19,7 @@ func watchExec(file string, function func()) {
 	}
 	defer watcher.Close()
 
-	delay := 50 * time.Millisecond
+	delay := 250 * time.Millisecond
 	timer := time.NewTimer(delay)
 	timer.Stop()
 
@@ -32,8 +32,10 @@ func watchExec(file string, function func()) {
 				}
 				if event.Has(fsnotify.Write) {
 					if !timer.Stop() {
+						log.Println("Calling function")
 						function()
 					}
+					log.Println("Resetting timer")
 					timer.Reset(delay)
 				}
 			case err, ok := <-watcher.Errors:
@@ -58,6 +60,8 @@ func concatConfig(files []string) {
 	for i, file := range files {
 		quotedFiles[i] = `"` + file + `"`
 	}
+
+	time.Sleep(50 * time.Millisecond)
 
 	base, err := os.ReadFile(baseFile)
 	if err != nil {
