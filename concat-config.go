@@ -32,10 +32,8 @@ func watchExec(file string, function func()) {
 				}
 				if event.Has(fsnotify.Write) {
 					if !timer.Stop() {
-						log.Println("Calling function")
 						function()
 					}
-					log.Println("Resetting timer")
 					timer.Reset(delay)
 				}
 			case err, ok := <-watcher.Errors:
@@ -93,7 +91,7 @@ func concatConfig(files []string) {
 			log.Fatal(err)
 		}
 	}
-	fmt.Println("Concatenated \""+baseFile+"\" to the files", strings.Join(quotedFiles, ", "))
+	fmt.Println("Added \""+baseFile+"\" to the files", strings.Join(quotedFiles, ", "))
 }
 
 func main() {
